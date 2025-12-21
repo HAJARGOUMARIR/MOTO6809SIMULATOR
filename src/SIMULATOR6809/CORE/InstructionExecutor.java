@@ -12,7 +12,7 @@ public class InstructionExecutor {
     private  final LabelManager labelManager;
     private final DefaultTableModel ramModel;
     private final DefaultTableModel romModel;
-    private int romAddress = 0; // Position d'écriture en ROM pour l'assembleur
+    private int romAddress = 0; 
 
     
     public InstructionExecutor(CPU cpu, DefaultTableModel ramModel, DefaultTableModel romModel) {
@@ -24,9 +24,6 @@ public class InstructionExecutor {
 
     
 
-    /**
-     * Exécute une instruction décodée
-     */
     public void execute(InstructionDecoder.DecodedInstruction instr) {
         if (instr == null) {
             throw new IllegalArgumentException("Instruction nulle");
@@ -37,7 +34,6 @@ public class InstructionExecutor {
         String operand = instr.operand;
 
         switch (mnemonic) {
-            // LOAD INSTRUCTIONS (8 registres)
             case "LDA" -> execLDA(mode, operand);
             case "LDB" -> execLDB(mode, operand);
             case "LDD" -> execLDD(mode, operand);
@@ -45,7 +41,6 @@ public class InstructionExecutor {
             case "LDY" -> execLDY(mode, operand);
             case "LDU" -> execLDU(mode, operand);
             case "LDS" -> execLDS(mode, operand);
-            // STORE INSTRUCTIONS
             case "STA" -> execSTA(mode, operand);
             case "STB" -> execSTB(mode, operand);
             case "STD" -> execSTD(mode, operand);
@@ -53,12 +48,10 @@ public class InstructionExecutor {
             case "STY" -> execSTY(mode, operand);
             case "STU" -> execSTU(mode, operand);
             case "STS" -> execSTS(mode, operand);
-            // LOAD EFFECTIVE ADDRESS (LEA)
             case "LEAX" -> execLEAX(operand);
             case "LEAY" -> execLEAY(operand);
             case "LEAS" -> execLEAS(operand);
             case "LEAU" -> execLEAU(operand);
-            // COMPARE INSTRUCTIONS
             case "CMPA" -> execCMPA(mode, operand);
             case "CMPB" -> execCMPB(mode, operand);
             case "CMPD" -> execCMPD(mode, operand);
@@ -66,19 +59,16 @@ public class InstructionExecutor {
             case "CMPY" -> execCMPY(mode, operand);
             case "CMPU" -> execCMPU(mode, operand);
             case "CMPS" -> execCMPS(mode, operand);
-            // ADDITION INSTRUCTIONS
             case "ADDA" -> execADDA(mode, operand);
             case "ADDB" -> execADDB(mode, operand);
             case "ADDD" -> execADDD(mode, operand);
             case "ADCA" -> execADCA(mode, operand);
             case "ADCB" -> execADCB(mode, operand);
-            // SUBTRACTION INSTRUCTIONS
             case "SUBA" -> execSUBA(mode, operand);
             case "SUBB" -> execSUBB(mode, operand);
             case "SUBD" -> execSUBD(mode, operand);
             case "SBCA" -> execSBCA(mode, operand);
             case "SBCB" -> execSBCB(mode, operand);
-            // LOGICAL INSTRUCTIONS
             case "ANDA" -> execANDA(mode, operand);
             case "ANDB" -> execANDB(mode, operand);
             case "ANDCC" -> execANDCC(operand);
@@ -87,55 +77,45 @@ public class InstructionExecutor {
             case "ORCC" -> execORCC(operand);
             case "EORA" -> execEORA(mode, operand);
             case "EORB" -> execEORB(mode, operand);
-            // BIT TEST INSTRUCTIONS
             case "BITA" -> execBITA(mode, operand);
             case "BITB" -> execBITB(mode, operand);
-            // INCREMENT/DECREMENT
             case "INCA" -> execINCA();
             case "INCB" -> execINCB();
             case "INC" -> execINC(mode, operand);
             case "DECA" -> execDECA();
             case "DECB" -> execDECB();
             case "DEC" -> execDEC(mode, operand);
-            // CLEAR INSTRUCTIONS
             case "CLRA" -> execCLRA();
             case "CLRB" -> execCLRB();
             case "CLR" -> execCLR(mode, operand);
-            // COMPLEMENT INSTRUCTIONS
             case "COMA" -> execCOMA();
             case "COMB" -> execCOMB();
             case "COM" -> execCOM(mode, operand);
-            // NEGATE INSTRUCTIONS
             case "NEGA" -> execNEGA();
             case "NEGB" -> execNEGB();
             case "NEG" -> execNEG(mode, operand);
-            // TEST INSTRUCTIONS
             case "TSTA" -> execTSTA();
             case "TSTB" -> execTSTB();
             case "TST" -> execTST(mode, operand);
-            // SHIFT INSTRUCTIONS (ASL/ASR/LSL/LSR)
             case "ASLA" -> execASLA();
             case "ASLB" -> execASLB();
             case "ASL" -> execASL(mode, operand);
             case "ASRA" -> execASRA();
             case "ASRB" -> execASRB();
             case "ASR" -> execASR(mode, operand);
-            case "LSLA" -> execASLA(); // LSL = ASL
+            case "LSLA" -> execASLA(); 
             case "LSLB" -> execASLB();
             case "LSL" -> execASL(mode, operand);
             case "LSRA" -> execLSRA();
             case "LSRB" -> execLSRB();
             case "LSR" -> execLSR(mode, operand);
-            // ROTATE INSTRUCTIONS (ROL/ROR)
             case "ROLA" -> execROLA();
             case "ROLB" -> execROLB();
             case "ROL" -> execROL(mode, operand);
             case "RORA" -> execRORA();
             case "RORB" -> execRORB();
             case "ROR" -> execROR(mode, operand);
-            // BRANCH INSTRUCTIONS (Court)
             case "BRA" -> execBRA(operand);
-            //case "BRN" -> execBRN(operand);
             case "BEQ" -> execBEQ(operand);
             case "BNE" -> execBNE(operand);
             case "BCC", "BHS" -> execBCC(operand);
@@ -150,24 +130,19 @@ public class InstructionExecutor {
             case "BLT" -> execBLT(operand);
             case "BHI" -> execBHI(operand);
             case "BLS" -> execBLS(operand);
-            // LONG BRANCH INSTRUCTIONS
             case "LBRA" -> execLBRA(operand);
             case "LBSR" -> execLBSR(operand);
-            // JUMP AND SUBROUTINE
             case "JMP" -> execJMP(mode, operand);
             case "JSR" -> execJSR(mode, operand);
             case "BSR" -> execBSR(operand);
             case "RTS" -> execRTS();
             case "RTI" -> execRTI();
-            // STACK INSTRUCTIONS
             case "PSHS" -> execPSHS(operand);
             case "PSHU" -> execPSHU(operand);
             case "PULS" -> execPULS(operand);
             case "PULU" -> execPULU(operand);
-            // TRANSFER AND EXCHANGE
             case "TFR" -> execTFR(operand);
             case "EXG" -> execEXG(operand);
-            // SPECIAL INSTRUCTIONS
             case "ABX" -> execABX();
             case "MUL" -> execMUL();
             case "SEX" -> execSEX();
@@ -178,7 +153,6 @@ public class InstructionExecutor {
             case "SWI3" -> execSWI3();
             case "CWAI" -> execCWAI(operand);
             case "SYNC" -> execSYNC();
-            // ASSEMBLER DIRECTIVES
             case "ORG" -> execORG(operand);
 
             default -> throw new UnsupportedOperationException(
@@ -604,7 +578,6 @@ public class InstructionExecutor {
         cpu.setFlagV(false);
     }
 
-    // SECTION: BIT TEST INSTRUCTIONS
     private void execBITA(InstructionDecoder.AddressingMode mode, String operand) {
         int value = readOperand8(mode, operand);
         int result = cpu.getA() & value;
@@ -1070,25 +1043,25 @@ public class InstructionExecutor {
     private void execLBRA(String operand) {
         int displacement = parseSignedDisplacement16(operand);
         int pc = cpu.getPC();
-        int target = (pc + 3 + displacement) & 0xFFFF; // LBRA = 3 octets
+        int target = (pc + 3 + displacement) & 0xFFFF; 
         cpu.setPC(target);
     }
 
     private void execLBSR(String operand) {
         int displacement = parseSignedDisplacement16(operand);
         int pc = cpu.getPC();
-        int target = (pc + 3 + displacement) & 0xFFFF; // LBSR = 3 octets
+        int target = (pc + 3 + displacement) & 0xFFFF; 
         int s = cpu.getS();
-        s = pushWord(s, pc + 3); // Adresse de retour = PC + 3
+        s = pushWord(s, pc + 3); 
         cpu.setS(s);
         cpu.setPC(target);
     }
     private void execBSR(String operand) {
         int displacement = parseSignedDisplacement8(operand);
         int pc = cpu.getPC();
-        int target = (pc + 2 + displacement) & 0xFFFF; // BSR = 2 octets
+        int target = (pc + 2 + displacement) & 0xFFFF; 
         int s = cpu.getS();
-        s = pushWord(s, pc + 2); // Adresse de retour = PC + 2
+        s = pushWord(s, pc + 2); 
         cpu.setS(s);
         cpu.setPC(target);
     }
@@ -1170,7 +1143,6 @@ public class InstructionExecutor {
         int mask = parseRegisterMask(operand);
         int s = cpu.getS();
 
-        // ORDRE LSB → MSB (bit 0 vers bit 7) - INVERSE de PSHS
         if ((mask & 0x01) != 0) {
             cpu.setCC(pullByte(s));
             s = (s + 1) & 0xFFFF;
@@ -1193,7 +1165,7 @@ public class InstructionExecutor {
 
         if ((mask & 0x10) != 0) {
             cpu.setX(pullWord(s));
-            s = (s + 2) & 0xFFFF; // +2 car 16 bits
+            s = (s + 2) & 0xFFFF; 
         }
 
         if ((mask & 0x20) != 0) {
@@ -1218,7 +1190,6 @@ public class InstructionExecutor {
         int mask = parseRegisterMask(operand);
         int u = cpu.getU();
 
-        // ORDRE LSB → MSB (inverse de PSHU)
         if ((mask & 0x01) != 0) {
             cpu.setCC(pullByte(u));
             u = (u + 1) & 0xFFFF;
@@ -1250,7 +1221,7 @@ public class InstructionExecutor {
         }
 
         if ((mask & 0x40) != 0) {
-            cpu.setS(pullWord(u)); // S au lieu de U!
+            cpu.setS(pullWord(u)); 
             u = (u + 2) & 0xFFFF;
         }
 
