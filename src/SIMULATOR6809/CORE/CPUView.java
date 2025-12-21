@@ -3,8 +3,7 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Classe CPUView - Vue graphique pour afficher l'état du CPU
- * Renomme ARCHITECTURE_INTERNE mais ne contient QUE l'affichage
+ * Classe CPUView :  Vue graphique pour afficher l'état du CPU
  */
 public class CPUView extends JFrame {
 
@@ -92,13 +91,7 @@ public class CPUView extends JFrame {
         return label;
     }
 
-    // =======================
-    //  MÉTHODES DE MISE À JOUR
-    // =======================
-
-    /**
-     * Met à jour l'affichage complet depuis un objet CPU
-     */
+    
     public void updateFromCPU(CPU cpu) {
         lblPC.setText(CPU.decimalToHex(cpu.getPC(), 4));
         lblA.setText(CPU.decimalToHex(cpu.getA(), 2));
@@ -109,7 +102,6 @@ public class CPUView extends JFrame {
         lblU.setText(CPU.decimalToHex(cpu.getU(), 4));
         lblDP.setText(CPU.decimalToHex(cpu.getDP(), 2));
 
-        // Mise à jour des flags
         lblE.setText(cpu.getFlagE() ? "1" : "0");
         lblF.setText(cpu.getFlagF() ? "1" : "0");
         lblH.setText(cpu.getFlagH() ? "1" : "0");
