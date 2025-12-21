@@ -1,28 +1,28 @@
 package SIMULATOR6809.CORE;
 
-/* Classe CPU - Modèle pur du microprocesseur 6809 */
+/* Classe CPU : Modèle pur du microprocesseur 6809 */
 public class CPU {
 
     //       REGISTRES
-    private int PC = 0xFC00;  // Program Counter - COMMENCE À 0xFC00
+    private int PC = 0xFC00;  // Program Counter 
     private int X = 0;        // Index Register X
     private int Y = 0;        // Index Register Y
-    private int S = 0;        // Stack Pointer (Hardware)
+    private int S = 0;        // Stack Pointer 
     private int U = 0;        // User Stack Pointer
     private int DP = 0;       // Direct Page Register
     private int A = 0;        // Accumulator A
     private int B = 0;        // Accumulator B
-    private int CC = 0x04;    // Condition Code Register - FLAG Z À 1 PAR DÉFAUT
+    private int CC = 0x04;    // Condition Code Registe
 
     //     FLAGS MASK (CC)
-    public static final int C_FLAG = 0x01;  // Carry
-    public static final int V_FLAG = 0x02;  // Overflow
-    public static final int Z_FLAG = 0x04;  // Zero
-    public static final int N_FLAG = 0x08;  // Negative
-    public static final int I_FLAG = 0x10;  // IRQ Mask
-    public static final int H_FLAG = 0x20;  // Half Carry
-    public static final int F_FLAG = 0x40;  // FIRQ Mask
-    public static final int E_FLAG = 0x80;  // Entire State
+    public static final int C_FLAG = 0x01;  
+    public static final int V_FLAG = 0x02;  
+    public static final int Z_FLAG = 0x04;  
+    public static final int N_FLAG = 0x08;  
+    public static final int I_FLAG = 0x10;  
+    public static final int H_FLAG = 0x20;  
+    public static final int F_FLAG = 0x40;  
+    public static final int E_FLAG = 0x80;  
 
     //     GETTERS / SETTERS
     public int getPC() {
@@ -138,7 +138,7 @@ public class CPU {
     public void setFlagF(boolean value) { setFlag(F_FLAG, value); }
     public void setFlagE(boolean value) { setFlag(E_FLAG, value); }
 
-    //    UTILITAIRES
+   
     public static int hexToDecimal(String hex) {
         try {
             return Integer.parseInt(hex, 16);
