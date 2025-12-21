@@ -125,7 +125,7 @@ public class DASHBOARD extends JFrame {
         itemAbout.addActionListener(e ->
                 JOptionPane.showMessageDialog(this,
                         "Simulateur Motorola 6809 — Projet Module\n" +
-                                "Auteur: CHAHD & HAJAR\n\n" +
+                                "Auteur: CHAHD & HAJAR & LAMISS & HIBA\n\n" +
                                 "Architecture MVC Refactorisée",
                         "À propos",
                         JOptionPane.INFORMATION_MESSAGE));
