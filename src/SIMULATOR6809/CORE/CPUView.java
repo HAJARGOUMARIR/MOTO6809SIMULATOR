@@ -10,7 +10,6 @@ public class CPUView extends JFrame {
     private static final long serialVersionUID = 1L;
     private JPanel contentPane;
 
-    // Labels pour l'affichage
     private JLabel lblPC;
     private JLabel lblInstruction;
     private JLabel lblS;
@@ -45,7 +44,6 @@ public class CPUView extends JFrame {
         contentPane.setLayout(null);
         setContentPane(contentPane);
 
-        // Configuration des labels
         lblPC = createRegisterLabel("FC00", 95, 15, 89, 26);
         lblInstruction = createRegisterLabel("", 13, 50, 202, 31);
         lblS = createRegisterLabel("0000", 40, 85, 70, 30);
@@ -55,8 +53,6 @@ public class CPUView extends JFrame {
         lblDP = createRegisterLabel("00", 45, 281, 46, 30);
         lblX = createRegisterLabel("0000", 30, 352, 76, 30);
         lblY = createRegisterLabel("0000", 145, 353, 76, 30);
-
-        // Flags
         lblE = createFlagLabel("0", 92, 281, 13, 31);
         lblF = createFlagLabel("0", 105, 281, 13, 31);
         lblH = createFlagLabel("0", 117, 281, 13, 31);
@@ -131,7 +127,7 @@ public class CPUView extends JFrame {
         lblH.setText("0");
         lblI.setText("0");
         lblN.setText("0");
-        lblZ.setText("1");
+        lblZ.setText("0");
         lblV.setText("0");
         lblC.setText("0");
     }
