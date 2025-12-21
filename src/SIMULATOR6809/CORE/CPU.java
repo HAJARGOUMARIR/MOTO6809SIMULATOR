@@ -3,18 +3,17 @@ package SIMULATOR6809.CORE;
 /* Classe CPU : Modèle pur du microprocesseur 6809 */
 public class CPU {
 
-    //       REGISTRES
-    private int PC = 0xFC00;  // Program Counter 
-    private int X = 0;        // Index Register X
-    private int Y = 0;        // Index Register Y
-    private int S = 0;        // Stack Pointer 
-    private int U = 0;        // User Stack Pointer
-    private int DP = 0;       // Direct Page Register
-    private int A = 0;        // Accumulator A
-    private int B = 0;        // Accumulator B
-    private int CC = 0x04;    // Condition Code Registe
+    private int PC = 0xFC00;  
+    private int X = 0;       
+    private int Y = 0;       
+    private int S = 0;        
+    private int U = 0;        
+    private int DP = 0;      
+    private int A = 0;       
+    private int B = 0;       
+    private int CC = 0x04;   
 
-    //     FLAGS MASK (CC)
+    
     public static final int C_FLAG = 0x01;  
     public static final int V_FLAG = 0x02;  
     public static final int Z_FLAG = 0x04;  
@@ -24,7 +23,7 @@ public class CPU {
     public static final int F_FLAG = 0x40;  
     public static final int E_FLAG = 0x80;  
 
-    //     GETTERS / SETTERS
+
     public int getPC() {
         return PC;
     }
@@ -106,7 +105,6 @@ public class CPU {
         CC = cc & 0xFF;
     }
 
-    //    GESTION FLAGS
     public void setFlag(int flag, boolean value) {
         if (value) {
             CC |= flag;
@@ -119,7 +117,6 @@ public class CPU {
         return (CC & flag) != 0;
     }
 
-    // Méthodes individuelles pour chaque flag
     public boolean getFlagC() { return getFlag(C_FLAG); }
     public boolean getFlagV() { return getFlag(V_FLAG); }
     public boolean getFlagZ() { return getFlag(Z_FLAG); }
@@ -164,10 +161,10 @@ public class CPU {
         DP = 0;
         A = 0;
         B = 0;
-        CC = 0x04;      // FLAG Z À 1 PAR DÉFAUT (tous les registres à 0)
+        CC = 0x04;    
     }
+    
 
-    //     DEBUGGING
     @Override
     public String toString() {
         return String.format(
