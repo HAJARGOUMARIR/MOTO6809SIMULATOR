@@ -9,7 +9,6 @@ public class CPUView extends JFrame {
 
     private static final long serialVersionUID = 1L;
     private JPanel contentPane;
-
     private JLabel lblPC;
     private JLabel lblInstruction;
     private JLabel lblS;
