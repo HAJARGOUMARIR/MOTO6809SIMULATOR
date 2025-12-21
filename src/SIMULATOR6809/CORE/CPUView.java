@@ -37,7 +37,6 @@ public class CPUView extends JFrame {
         setTitle("ARCHITECTURE INTERNE DU 6809");
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setBounds(70, 200, 300, 500);
-
         contentPane = new JPanel();
         contentPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(null);
