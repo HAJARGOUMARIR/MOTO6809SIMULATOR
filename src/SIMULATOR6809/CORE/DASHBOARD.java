@@ -5,6 +5,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.awt.print.PrinterException;
+/** 
+ DASHBOARD : Interface principale du simulateur 6809
+*/
 
 public class DASHBOARD extends JFrame {
 
