@@ -42,7 +42,8 @@ public class InstructionDecoder {
         public final String operand;             
         public final char targetRegister;       
         public final IndexedDetails indexedInfo;
-        public final DirectDetails directInfo; 
+        public final DirectDetails directInfo;
+        public AddressingMode mode;
 
         public DecodedInstruction(String operation, AddressingMode mode, String operand) {
             this(operation, mode, operand, null, null);
