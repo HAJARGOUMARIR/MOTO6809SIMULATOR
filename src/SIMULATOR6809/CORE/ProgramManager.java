@@ -139,12 +139,10 @@ public class ProgramManager {
             labelManager.print();
             System.out.println("=============================================\n");
 
-            // ÉTAPE 2: Assembler avec les étiquettes résolues
             clearROM();
             executor.resetRomAddress();
             lastAssembledBytes = 0;
 
-            // Utiliser le même gestionnaire d'étiquettes pour l'executor
             executor.clearLabels();
             labelManager.getAllLabels().forEach((name, addr) ->
                     executor.registerLabel(name, addr));
@@ -156,7 +154,6 @@ public class ProgramManager {
                 String originalLine = programLines.get(i);
                 String line = originalLine.trim();
 
-                // Ignorer commentaires et lignes vides
                 if (line.startsWith(";") || line.isEmpty()) continue;
 
                 int commentIndex = line.indexOf(';');
@@ -170,7 +167,6 @@ public class ProgramManager {
                     break;
                 }
 
-                // Directive ORG
                 if (line.toUpperCase().startsWith("ORG")) {
                     String[] parts = line.split("\\s+");
                     if (parts.length >= 2) {
@@ -181,21 +177,16 @@ public class ProgramManager {
                     continue;
                 }
 
-<<<<<<< HEAD
-                //  GESTION DES ÉTIQUETTES
+
                 if (line.endsWith(":")) {
                     System.out.println("🏷️  Étiquette seule: " + line);
                     continue;
                 }
 
                 String instruction = line;
-=======
-                // Extraire l'étiquette (si présente)
                 String instructionOnly = line;
                 String labelName = null;
 
-                // Format: "LABEL: INSTRUCTION"
->>>>>>> aff5c3b (Sauvegarde temporaire pour synchronisation)
                 if (line.contains(":")) {
                     String[] labelParts = line.split(":", 2);
                     if (labelParts.length > 0 && !labelParts[0].trim().isEmpty()) {
@@ -204,13 +195,9 @@ public class ProgramManager {
                     if (labelParts.length > 1 && !labelParts[1].trim().isEmpty()) {
                         instructionOnly = labelParts[1].trim();
                     } else {
-<<<<<<< HEAD
                         continue; 
-=======
-                        continue; // Étiquette seule sur sa ligne
                     }
                 }
-                // Format: "LABEL INSTRUCTION" (sans :)
                 else if (InstructionDecoder.hasLabel(line)) {
                     String[] parts = line.split("\\s+", 2);
                     if (parts.length > 0 && InstructionDecoder.hasLabel(line)) {
@@ -218,13 +205,11 @@ public class ProgramManager {
                         if (parts.length > 1) {
                             instructionOnly = parts[1];
                         } else {
-                            continue; // Étiquette seule
+                            continue;
                         }
->>>>>>> aff5c3b (Sauvegarde temporaire pour synchronisation)
                     }
                 }
 
-                // Décoder l'instruction
                 InstructionDecoder.DecodedInstruction instr =
                         InstructionDecoder.decode(instructionOnly);
 
@@ -233,7 +218,6 @@ public class ProgramManager {
                     continue;
                 }
 
-                // Résolution des étiquettes pour les branchements
                 if (instr.mode == InstructionDecoder.AddressingMode.RELATIVE) {
                     String targetLabel = instr.operand.trim();
                     Integer targetAddr = labelManager.getAddress(targetLabel);
@@ -244,14 +228,11 @@ public class ProgramManager {
                         return false;
                     }
 
-                    // Calcul du déplacement
                     int instructionSize = executor.computeInstructionSize(instr);
                     int nextPC = currentAddress + instructionSize;
                     int displacement = targetAddr - nextPC;
 
-                    // Vérifier la portée du déplacement
                     if (instr.operation.startsWith("L")) {
-                        // Branchement long (16 bits signé)
                         if (displacement < -32768 || displacement > 32767) {
                             showError("Déplacement trop grand",
                                     "Ligne " + (i+1) + ": déplacement " + displacement +
@@ -262,7 +243,6 @@ public class ProgramManager {
                                 instr.operation, instr.mode,
                                 CPU.decimalToHex(displacement & 0xFFFF, 4));
                     } else {
-                        // Branchement court (8 bits signé)
                         if (displacement < -128 || displacement > 127) {
                             showError("Déplacement trop grand",
                                     "Ligne " + (i+1) + ": déplacement " + displacement +
@@ -279,7 +259,6 @@ public class ProgramManager {
                             ") disp=" + displacement);
                 }
 
-                // Émettre l'instruction en ROM
                 try {
                     executor.emitToROM(instr);
                     int size = executor.computeInstructionSize(instr);
@@ -297,7 +276,7 @@ public class ProgramManager {
             }
 
             lastAssembledBytes = executor.getRomAddress() - startPC;
-            System.out.println("\n✅ Assemblage réussi: " + lastAssembledBytes + " octets");
+            System.out.println("\n Assemblage réussi: " + lastAssembledBytes + " octets");
             System.out.println("Table des symboles finale:");
             labelManager.print();
 
@@ -326,23 +305,18 @@ public class ProgramManager {
             while (currentLine < programLines.size()) {
                 String line = programLines.get(currentLine);
 
-                // Arrêt sur END ou SWI
                 if (line.equalsIgnoreCase("END") ||
                         line.toUpperCase().startsWith("SWI")) {
                     break;
                 }
 
-                // Sauter les lignes d'étiquettes
                 if (isLabelLine(line)) {
                     System.out.println("⏭️ Saut de l'étiquette: " + line);
                     currentLine++;
                     continue;
                 }
 
-                // Capturer le PC avant exécution
                 int pcBefore = cpu.getPC();
-
-                // Décoder l'instruction
                 String instructionOnly = line;
                 if (InstructionDecoder.hasLabel(line)) {
                     instructionOnly = InstructionDecoder.removeLabel(line);
@@ -356,21 +330,13 @@ public class ProgramManager {
                     continue;
                 }
 
-                // Calculer la taille
                 int instructionSize = executor.computeInstructionSize(instr);
-
-                // Exécuter
                 executor.execute(instr);
                 instructionCount++;
-
-<<<<<<< HEAD
-=======
-                // Vérifier si le PC a changé (branchement)
                 int pcAfter = cpu.getPC();
                 boolean pcWasModified = (pcAfter != pcBefore);
 
                 if (pcWasModified) {
-                    // Branchement pris
                     int newLineIndex = findLineIndexByPC(pcAfter);
                     if (newLineIndex != -1) {
                         currentLine = newLineIndex;
@@ -378,13 +344,10 @@ public class ProgramManager {
                         currentLine++;
                     }
                 } else {
-                    // Pas de branchement, avancer le PC
                     cpu.setPC((pcBefore + instructionSize) & 0xFFFF);
                     currentLine++;
                 }
 
-                // Sécurité: éviter boucle infinie
->>>>>>> aff5c3b (Sauvegarde temporaire pour synchronisation)
                 if (instructionCount > 10000) {
                     showWarning("Limite atteinte",
                             "10000 instructions exécutées. Arrêt de sécurité.");
@@ -403,9 +366,7 @@ public class ProgramManager {
                             programLines.get(currentLine)));
         }
     }
-    /**
-      Exécute une seule ligne (mode pas à pas)
-     */
+   
     public boolean step() {
         if (!programLoaded) {
             showError("Aucun programme", "Chargez d'abord un programme");
@@ -425,23 +386,16 @@ public class ProgramManager {
             return false;
         }
 
-        // Sauter les lignes d'étiquettes seules
         if (isLabelLine(line)) {
             currentLine++;
-            return step(); // Récursif
+            return step();
         }
 
         try {
             saveState();
-<<<<<<< HEAD
             executeLine(line);
             currentLine++;
-=======
-
-            // ⭐ Capturer le PC AVANT et APRÈS l'exécution
             int pcBefore = cpu.getPC();
-
-            // Décoder l'instruction pour connaître sa taille
             String instructionOnly = line;
             if (InstructionDecoder.hasLabel(line)) {
                 instructionOnly = InstructionDecoder.removeLabel(line);
@@ -454,50 +408,26 @@ public class ProgramManager {
                 throw new Exception("Impossible de décoder l'instruction");
             }
 
-            // Calculer la taille de l'instruction
             int instructionSize = executor.computeInstructionSize(instr);
-
-            // Exécuter l'instruction (via executor, qui ne modifie PAS le PC)
             executor.execute(instr);
-
-            // ⭐ CORRECTION : Gérer le PC selon le type d'instruction
             int pcAfter = cpu.getPC();
-
-            // Vérifier si l'instruction a modifié le PC (branchement)
             boolean pcWasModified = (pcAfter != pcBefore);
 
             if (pcWasModified) {
-                // BRANCHEMENT : Le PC a été modifié par l'instruction
-                // Synchroniser currentLine avec la nouvelle adresse
                 int newLineIndex = findLineIndexByPC(pcAfter);
 
                 if (newLineIndex != -1) {
                     currentLine = newLineIndex;
-                    System.out.println("🔄 Branchement: PC=$" +
-                            CPU.decimalToHex(pcBefore, 4) + " → $" +
-                            CPU.decimalToHex(pcAfter, 4) +
-                            " (ligne " + (currentLine + 1) + ")");
+                
                 } else {
-                    // Adresse hors programme
-                    System.err.println("⚠️ PC hors programme: $" +
-                            CPU.decimalToHex(pcAfter, 4));
                     currentLine++;
                 }
             } else {
-                // INSTRUCTION NORMALE : Avancer le PC de la taille de l'instruction
                 cpu.setPC((pcBefore + instructionSize) & 0xFFFF);
                 pcAfter = cpu.getPC();
-
-                // Passer à la ligne suivante
                 currentLine++;
-
-                System.out.println("→ PC: $" + CPU.decimalToHex(pcBefore, 4) +
-                        " → $" + CPU.decimalToHex(pcAfter, 4) +
-                        " | " + line);
             }
 
-            // Mettre à jour affichage
->>>>>>> aff5c3b (Sauvegarde temporaire pour synchronisation)
             updateDisplay();
             return true;
 
@@ -508,10 +438,6 @@ public class ProgramManager {
             return false;
         }
     }
-
-    /**
-      Revient en arrière d'une instruction
-     */
     public boolean stepBack() {
         if (stateHistory.isEmpty()) {
             showWarning("Début du programme",
@@ -523,10 +449,6 @@ public class ProgramManager {
             CPUState previousState = stateHistory.pop();
             previousState.restore(cpu);
             currentLine = previousState.lineNumber;
-<<<<<<< HEAD
-=======
-
-            // Si on est sur une étiquette, reculer encore
             if (currentLine < programLines.size() &&
                     isLabelLine(programLines.get(currentLine))) {
                 System.out.println("⏮️  Recul supplémentaire pour éviter l'étiquette");
@@ -536,8 +458,6 @@ public class ProgramManager {
                     currentLine = prevPrevState.lineNumber;
                 }
             }
-
->>>>>>> aff5c3b (Sauvegarde temporaire pour synchronisation)
             updateDisplay();
             showInfo("Retour arrière",
                     String.format("État restauré à la ligne %d", currentLine + 1));
@@ -550,11 +470,6 @@ public class ProgramManager {
             return false;
         }
     }
-
-
-    /**
-      Réinitialise complètement l'exécution
-     */
     public void reset() {
         cpu.reset();
         currentLine = 0;
@@ -568,14 +483,9 @@ public class ProgramManager {
 
 
     private void executeLine(String line) throws Exception {
-<<<<<<< HEAD
-=======
         if (isLabelLine(line)) {
-            return; // Ne rien exécuter pour une étiquette
+            return;
         }
-
-        // Décoder l'instruction
->>>>>>> aff5c3b (Sauvegarde temporaire pour synchronisation)
         InstructionDecoder.DecodedInstruction instr =
                 InstructionDecoder.decode(line);
 
@@ -585,13 +495,8 @@ public class ProgramManager {
 
         executor.execute(instr);
 
-<<<<<<< HEAD
         int instructionSize = executor.computeInstructionSize(instr);
         cpu.setPC((cpu.getPC() + instructionSize) & 0xFFFF);
-=======
-        // ⚠️ SUPPRIMÉ : Ne plus incrémenter le PC ici
-        // Le PC est géré par InstructionExecutor et les branchements
->>>>>>> aff5c3b (Sauvegarde temporaire pour synchronisation)
     }
 
 
@@ -667,15 +572,11 @@ public class ProgramManager {
 
     private boolean collectLabels() {
         if (!programLoaded) {
-            System.err.println(" collectLabels: programme non chargé");
             return false;
         }
 
         labelManager.clear();
         int currentAddress = cpu.getPC(); 
-
-        System.out.println(" Début collection étiquettes, PC initial: $" +
-                CPU.decimalToHex(currentAddress, 4));
 
         for (int i = 0; i < programLines.size(); i++) {
             String line = programLines.get(i);
@@ -690,15 +591,12 @@ public class ProgramManager {
             }
 
             if (line.equalsIgnoreCase("END")) {
-                System.out.println("🏁 Directive END trouvée, fin de collecte");
                 break;
             }
 
             String label = InstructionDecoder.extractLabel(line);
             if (label != null && !label.isEmpty()) {
                 labelManager.addLabel(label, currentAddress);
-                System.out.println("✅ Étiquette: " + label +
-                        " @ $" + CPU.decimalToHex(currentAddress, 4));
             }
 
             if (!line.toUpperCase().startsWith("ORG")) {
@@ -714,13 +612,8 @@ public class ProgramManager {
                         int size = executor.computeInstructionSize(instr);
                         currentAddress += size;
                     } else {
-<<<<<<< HEAD
                         currentAddress += 1; 
-=======
-                        // Pour les directives simples ou instruction non reconnue
-                        System.err.println("⚠️ Instruction non reconnue: " + instructionOnly);
-                        currentAddress += 1; // Taille par défaut
->>>>>>> aff5c3b (Sauvegarde temporaire pour synchronisation)
+                        currentAddress += 1;
                     }
                 }
             } else {
@@ -729,25 +622,14 @@ public class ProgramManager {
                     String hexAddr = parts[1].replace("$", "").replace("#", "");
                     try {
                         currentAddress = Integer.parseInt(hexAddr, 16) & 0xFFFF;
-                        System.out.println(" ORG vers $" + CPU.decimalToHex(currentAddress, 4));
                     } catch (NumberFormatException e) {
-                        System.err.println(" Format hexadécimal invalide: " + parts[1]);
                     }
                 }
             }
         }
 
-        System.out.println(" Collection terminée. " +
-                labelManager.getLabelCount() + " étiquettes.");
-
-<<<<<<< HEAD
         return labelManager.getLabelCount() >= 0; 
-=======
-        return labelManager.getLabelCount() >= 0;
     }
-    /**
-     * Vérifie si une ligne est une étiquette
-     */
     private boolean isLabelLine(String line) {
         if (line == null || line.trim().isEmpty()) {
             return false;
@@ -755,12 +637,10 @@ public class ProgramManager {
 
         String trimmed = line.trim();
 
-        // Format "LABEL:"
         if (trimmed.endsWith(":")) {
             return true;
         }
 
-        // Format "LABEL INSTRUCTION" - vérifier si le premier mot n'est pas une instruction
         if (InstructionDecoder.hasLabel(trimmed)) {
             return true;
         }
@@ -771,7 +651,6 @@ public class ProgramManager {
         int address = 0;
         boolean orgFound = false;
 
-        // 1. Chercher ORG dans le code
         for (String line : programLines) {
             line = line.trim();
             if (line.toUpperCase().startsWith("ORG")) {
@@ -783,32 +662,25 @@ public class ProgramManager {
                         orgFound = true;
                         break;
                     } catch (Exception e) {
-                        // Ignorer erreur
                     }
                 }
             }
         }
 
-        // 2. Si pas de ORG, utiliser PC initial
         if (!orgFound) {
             address = cpu.getPC();
         }
 
-        // 3. Parcourir le programme et calculer les adresses
         for (int i = 0; i < programLines.size(); i++) {
             String line = programLines.get(i).trim();
-
-            // Ignorer lignes vides et commentaires
             if (line.isEmpty() || line.startsWith(";")) {
                 continue;
             }
 
-            // Ignorer ORG
             if (line.toUpperCase().startsWith("ORG")) {
                 continue;
             }
 
-            // Si c'est END, vérifier si l'adresse correspond
             if (line.equalsIgnoreCase("END")) {
                 if (address == pcAddress) {
                     return i;
@@ -816,22 +688,18 @@ public class ProgramManager {
                 break;
             }
 
-            // Extraire l'instruction (sans étiquette)
             String instructionOnly = line;
             if (InstructionDecoder.hasLabel(line)) {
                 instructionOnly = InstructionDecoder.removeLabel(line);
                 if (instructionOnly.trim().isEmpty()) {
-                    // Étiquette seule, continuer
                     continue;
                 }
             }
 
-            // Vérifier si cette ligne correspond à l'adresse recherchée
             if (address == pcAddress) {
                 return i;
             }
 
-            // Calculer la taille de l'instruction
             try {
                 InstructionDecoder.DecodedInstruction instr =
                         InstructionDecoder.decode(instructionOnly);
@@ -840,11 +708,10 @@ public class ProgramManager {
                     address += size;
                 }
             } catch (Exception e) {
-                address += 1; // Taille par défaut
+                address += 1; 
             }
         }
 
-        return -1; // Adresse non trouvée
->>>>>>> aff5c3b (Sauvegarde temporaire pour synchronisation)
+        return -1; 
     }
 }
