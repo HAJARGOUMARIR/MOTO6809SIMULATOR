@@ -9,7 +9,6 @@ public class InstructionExecutor {
 
     
     private final CPU cpu;
-    private  final LabelManager labelManager;
     private final DefaultTableModel ramModel;
     private final DefaultTableModel romModel;
     private int romAddress = 0; 
@@ -19,7 +18,6 @@ public class InstructionExecutor {
         this.cpu = cpu;
         this.ramModel = ramModel;
         this.romModel = romModel;
-        this.labelManager = new LabelManager();
     }
 
     
