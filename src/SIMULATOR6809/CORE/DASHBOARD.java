@@ -5,10 +5,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.awt.print.PrinterException;
-/** 
- DASHBOARD : Interface principale du simulateur 6809
-*/
 
+/**
+ DASHBOARD : Interface principale du simulateur 6809 (Sans Console)
+ */
 public class DASHBOARD extends JFrame {
 
     private static final Color DARK_BG = new Color(20, 20, 30);
@@ -18,8 +18,6 @@ public class DASHBOARD extends JFrame {
     private static final Color TEXT_COLOR = Color.WHITE;
     private static final Color TEXT_LIGHT = new Color(220, 220, 220);
     private static final Color BORDER_COLOR = new Color(60, 70, 85);
-    private static final Color CONSOLE_BG = new Color(15, 15, 20);
-    private static final Color CONSOLE_TEXT = new Color(100, 220, 120);
     private static final Color BTN_PRIMARY = new Color(70, 130, 200);
     private static final Color BTN_SUCCESS = new Color(70, 130, 200);
     private static final Color BTN_WARNING = new Color(70, 130, 200);
@@ -34,7 +32,6 @@ public class DASHBOARD extends JFrame {
     private ProgramManager programManager;
 
     private JTextArea assemblerCodeArea;
-    private JTextArea consoleOutput;
 
     public DASHBOARD() {
         this.cpu = new CPU();
@@ -259,30 +256,6 @@ public class DASHBOARD extends JFrame {
         cpuPanel.add(cpuContentPane, BorderLayout.CENTER);
         centerPanel.add(cpuPanel, BorderLayout.CENTER);
 
-        consoleOutput = new JTextArea("Console Système 6809 - Prêt à simuler\n");
-        consoleOutput.setEditable(false);
-        consoleOutput.setRows(6);
-        consoleOutput.setFont(new Font("Consolas", Font.PLAIN, 13));
-        consoleOutput.setBackground(CONSOLE_BG);
-        consoleOutput.setForeground(CONSOLE_TEXT);
-        consoleOutput.setCaretColor(Color.GREEN);
-
-        JScrollPane consoleScrollPane = new JScrollPane(consoleOutput);
-        consoleScrollPane.setBackground(CONSOLE_BG);
-        consoleScrollPane.getViewport().setBackground(CONSOLE_BG);
-        consoleScrollPane.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder(
-                        BorderFactory.createLineBorder(BLUE_ACCENT, 2),
-                        " Sortie Console ",
-                        0,
-                        0,
-                        new Font("Segoe UI", Font.BOLD, 14),
-                        BLUE_LIGHT
-                ),
-                BorderFactory.createEmptyBorder(5, 5, 5, 5)
-        ));
-
-        centerPanel.add(consoleScrollPane, BorderLayout.SOUTH);
         return centerPanel;
     }
 
@@ -293,10 +266,8 @@ public class DASHBOARD extends JFrame {
         if (confirm == JOptionPane.YES_OPTION) {
             assemblerCodeArea.setText("");
             editeur.clearEditor();
-            logConsole(" Nouveau fichier créé.");
         }
     }
-
 
     private void saveFileAction() {
         JFileChooser chooser = new JFileChooser();
@@ -306,7 +277,6 @@ public class DASHBOARD extends JFrame {
             File f = chooser.getSelectedFile();
             try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
                 bw.write(assemblerCodeArea.getText());
-                logConsole(" Fichier enregistré : " + f.getName());
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this,
                         "Erreur sauvegarde : " + ex.getMessage(),
@@ -317,12 +287,7 @@ public class DASHBOARD extends JFrame {
 
     private void printAction() {
         try {
-            boolean complete = assemblerCodeArea.print();
-            if (complete) {
-                logConsole(" Impression terminée.");
-            } else {
-                logConsole(" Impression annulée.");
-            }
+            assemblerCodeArea.print();
         } catch (PrinterException ex) {
             JOptionPane.showMessageDialog(this,
                     "Erreur impression: " + ex.getMessage(),
@@ -332,115 +297,61 @@ public class DASHBOARD extends JFrame {
 
     private void handleAssemble(ActionEvent e) {
         String code = assemblerCodeArea.getText();
-        logConsole("Assemblage du code en cours...");
 
         programmeWindow.clear();
 
         if (programManager.loadProgram(code)) {
-            logConsole("Programme chargé: " + programManager.getProgramLines().size() + " lignes");
-
             if (programManager.assemble()) {
-                logConsole(" Assemblage terminé avec succès");
-
-                //  AFFICHAGE DÉTAILLÉ DES OCTETS EN ROM
-                logConsole("CONTENU DE LA ROM (OCTETS GÉNÉRÉS):");
-
-                int totalBytes = 0;
-                int startAddr = cpu.getPC();
-
-                // Parcourir la ROM et afficher tous les octets jusqu'au premier FF
-                for (int addr = startAddr; addr < startAddr + 100; addr++) {
-                    String byteValue = romWindow.read(addr);
-
-                    if (byteValue != null && !byteValue.equals("FF")) {
-                        totalBytes++;
-                        logConsole(String.format("  $%04X: %s", addr, byteValue));
-                    } else {
-                        // Premier FF trouvé = fin du programme
-                        break;
-                    }
-                }
-
-                logConsole(" TOTAL: " + totalBytes + " octets en ROM");
-                logConsole("  Octets assemblés (ProgramManager): " +
-                        programManager.getLastAssembledBytes());
                 editeur.setEditorText(code);
-
-                // CRITIQUE: Passer le CPU pour synchronisation automatique
                 programmeWindow.loadFromProgramManager(programManager, cpu);
-
-                // Surligner la première instruction
                 programmeWindow.highlightFromCPU(cpu);
-
                 programmeWindow.setVisible(true);
                 programmeWindow.toFront();
-
                 updateAllDisplays();
-
-                logConsole("Programme chargé dans la visualisation");
-                logConsole("   PC initial: $" + CPU.decimalToHex(cpu.getPC(), 4));
             } else {
-                logConsole(" Erreur d'assemblage");
+                JOptionPane.showMessageDialog(this,
+                        "Erreur lors de l'assemblage du programme",
+                        "Erreur d'assemblage",
+                        JOptionPane.ERROR_MESSAGE);
             }
         } else {
-            logConsole(" Erreur de chargement");
+            JOptionPane.showMessageDialog(this,
+                    "Erreur lors du chargement du programme",
+                    "Erreur de chargement",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
-
 
     private void handleRun(ActionEvent e) {
-        logConsole(" Exécution complète (Run)");
         try {
             programManager.runProgram();
-
             programmeWindow.highlightFromCPU(cpu);
-
-            logConsole("✓ Programme terminé");
-            logConsole("   État final:");
-            logConsole("   PC=$" + CPU.decimalToHex(cpu.getPC(), 4) +
-                    " A=$" + CPU.decimalToHex(cpu.getA(), 2) +
-                    " B=$" + CPU.decimalToHex(cpu.getB(), 2));
-
+            programmeWindow.setVisible(true);
+            programmeWindow.toFront();
             updateAllDisplays();
         } catch (Exception ex) {
-            logConsole(" ERREUR: " + ex.getMessage());
-            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Erreur lors de l'exécution: " + ex.getMessage(),
+                    "Erreur d'exécution",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    //PAS À PAS
     private void handleStep(ActionEvent e) {
         try {
-            int pcBefore = cpu.getPC();
-
             if (programManager.step()) {
-                int pcAfter = cpu.getPC();
-
-                logConsole("→ PC: $" + CPU.decimalToHex(pcBefore, 4) +
-                        " → $" + CPU.decimalToHex(pcAfter, 4));
-                logConsole("   A=$" + CPU.decimalToHex(cpu.getA(), 2) +
-                        " B=$" + CPU.decimalToHex(cpu.getB(), 2) +
-                        " X=$" + CPU.decimalToHex(cpu.getX(), 4));
-
                 programmeWindow.highlightFromCPU(cpu);
-
                 programmeWindow.setVisible(true);
                 programmeWindow.toFront();
-
                 updateAllDisplays();
-            } else {
-                logConsole("Programme terminé ou erreur");
-                logConsole("   PC final: $" + CPU.decimalToHex(cpu.getPC(), 4));
             }
         } catch (Exception ex) {
-            logConsole(" ERREUR Step: " + ex.getMessage());
             JOptionPane.showMessageDialog(this,
                     "Erreur lors du Pas à Pas : " + ex.getMessage(),
                     "Erreur CPU", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    //RESET
     private void handleReset(ActionEvent e) {
         programManager.reset();
 
@@ -455,7 +366,6 @@ public class DASHBOARD extends JFrame {
         if (programmeWindow != null) {
             programmeWindow.resetHighlight();
             if (programManager.isProgramLoaded()) {
-                // CRITIQUE: Passer le CPU lors du reload
                 programmeWindow.loadFromProgramManager(programManager, cpu);
                 programmeWindow.highlightFromCPU(cpu);
             } else {
@@ -473,9 +383,6 @@ public class DASHBOARD extends JFrame {
 
         cpuView.resetDisplay();
         updateAllDisplays();
-
-        logConsole(" Simulateur réinitialisé");
-        logConsole("   PC: $" + CPU.decimalToHex(cpu.getPC(), 4));
     }
 
     private void updateAllDisplays() {
@@ -483,8 +390,7 @@ public class DASHBOARD extends JFrame {
         cpuView.repaint();
     }
 
-    private void logConsole(String message) {
-        consoleOutput.append(message + "\n");
-        consoleOutput.setCaretPosition(consoleOutput.getDocument().getLength());
+    private void showMessage(String message, String title) {
+        JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
     }
 }
