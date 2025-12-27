@@ -158,7 +158,6 @@ public class ProgramManager {
                     if (parts.length >= 2) {
                         currentAddress = CPU.hexToDecimal(parts[1]) & 0xFFFF;
                         executor.setRomAddress(currentAddress);
-                        System.out.println("ORG $" + CPU.decimalToHex(currentAddress, 4));
                     }
                     continue;
                 }
@@ -183,7 +182,6 @@ public class ProgramManager {
                         InstructionDecoder.decode(instruction);
 
                 if (instr == null) {
-                    System.out.println("Ligne ignorée: " + line);
                     continue;
                 }
 
@@ -219,11 +217,7 @@ public class ProgramManager {
                     executor.emitToROM(instr);
                     int size = executor.computeInstructionSize(instr);
                     currentAddress += size;
-
-                    System.out.println("$" + CPU.decimalToHex(currentAddress - size, 4) +
-                            ": " + instr.operation +
-                            (instr.operand.isEmpty() ? "" : " " + instr.operand) +
-                            " (" + size + " octets)");
+                    
                 } catch (Exception e) {
                     showError("Erreur", "Ligne " + (i+1) + ": " + e.getMessage());
                     return false;
@@ -231,7 +225,6 @@ public class ProgramManager {
             }
 
             lastAssembledBytes = executor.getRomAddress() - cpu.getPC();
-            System.out.println("\n Assemblage réussi: " + lastAssembledBytes + " octets");
             return true;
 
         } catch (Exception e) {
@@ -261,10 +254,7 @@ public class ProgramManager {
                 executeLine(line);
                 currentLine++;
                 instructionCount++;
-                if (instructionCount > 10000) {
-                    showWarning("Limite atteinte",
-                            "10000 instructions exécutées. Arrêt de sécurité.");
-                    break;
+        
                 }
             }
 
@@ -412,15 +402,11 @@ public class ProgramManager {
 
     private boolean collectLabels() {
         if (!programLoaded) {
-            System.err.println(" collectLabels: programme non chargé");
             return false;
         }
 
         labelManager.clear();
         int currentAddress = cpu.getPC();
-
-        System.out.println(" Début collection étiquettes, PC initial: $" +
-                CPU.decimalToHex(currentAddress, 4));
 
         for (int i = 0; i < programLines.size(); i++) {
             String line = programLines.get(i);
@@ -435,15 +421,12 @@ public class ProgramManager {
             }
 
             if (line.equalsIgnoreCase("END")) {
-                System.out.println("Directive END trouvée, fin de collecte");
                 break;
             }
 
             String label = InstructionDecoder.extractLabel(line);
             if (label != null && !label.isEmpty()) {
                 labelManager.addLabel(label, currentAddress);
-                System.out.println("Étiquette: " + label +
-                        " @ $" + CPU.decimalToHex(currentAddress, 4));
             }
 
             if (!line.toUpperCase().startsWith("ORG")) {
@@ -468,16 +451,12 @@ public class ProgramManager {
                     String hexAddr = parts[1].replace("$", "").replace("#", "");
                     try {
                         currentAddress = Integer.parseInt(hexAddr, 16) & 0xFFFF;
-                        System.out.println(" ORG vers $" + CPU.decimalToHex(currentAddress, 4));
                     } catch (NumberFormatException e) {
                         System.err.println(" Format hexadécimal invalide: " + parts[1]);
                     }
                 }
             }
         }
-
-        System.out.println(" Collection terminée. " +
-                labelManager.getLabelCount() + " étiquettes.");
 
         return labelManager.getLabelCount() >= 0;
     }
